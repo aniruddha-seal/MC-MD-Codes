@@ -1,1 +1,143 @@
+#include<iostream>
+#include<cmath>
+using namespace std;
 
+//jth particle selected
+// length of the 3D Box l
+double ENGLJ(double x[512],double y[512],double z[512],int j)//j is the selected coordinate chosen to be changed.
+{
+	double l=7;
+	double u=0;
+	double rc=3;//cutoff distance
+	for(int i=0;i<512;i++)
+	{
+		if(i!=j)
+		{
+			double cx=x[i]-x[j];
+			double cy=y[i]-y[j];
+			double cz=z[i]-z[j];
+			if(cx>l/2)//Minimum Image Convention
+			{
+				cx=cx-l;
+			}
+			else if(cx<-l/2)
+			{
+				cx=cx+l;
+			}
+			if(cy>l/2)
+			{
+				cy=cy-l;
+			}
+			else if(cy<-l/2)
+			{
+				cy=cy+l;
+			}
+			if(cz>l/2)
+			{
+				cz=cz-l;
+			}
+			else if(cz<-l/2)
+			{
+				cz=cz+l;
+			}
+			double r=sqrt(cx*cx+cy*cy+cz*cz);
+			double ui;
+			if(r>=rc)//Cutoff 
+			{
+				ui=4*(pow(1/r,12)-pow(1/r,6));
+			}
+			else
+			{
+				ui=0;
+			}
+			u=u+ui;
+		}
+	}
+	return u;
+}		
+	
+int main()
+{
+	double xi[512],yi[512],zi[512];
+	double dx,dy,dz;
+	double xn[512],yn[512],zn[512];
+	double EAvg[512];
+	int c=0;
+	for(int i=0;i<8;i++)//assigning initial coordinates 512 uniformly
+	{
+		for(int j=0;j<8;j++)
+		{
+			for(int k=0;k<8;k++)
+			{
+				xi[c]=i;
+				yi[c]=j;
+				zi[c]=k;
+				c++;
+			}
+		}
+	}
+	int n=2000;
+	double Maxchange=1;//Order of Displacement
+	double l=7;//length of the box is 8 Coordinates are from 0-7.
+	for(int i=1;i<=10000;i++)//Running the Simulation
+	{
+		int j=0 + rand() % ((511+ 1 ) - 0); //randomly select a particle jth 
+		dx=2*((double) rand() / (RAND_MAX))-1;
+		dy=2*((double) rand() / (RAND_MAX))-1;
+		dz=2*((double) rand() / (RAND_MAX))-1;
+		xn[j]=xi[j]+dx*Maxchange;
+		yn[j]=yi[j]+dy*Maxchange;
+		zn[j]=zi[j]+dz*Maxchange;
+		if(xn[j]>l)//Periodic Boundary Conditions
+		{
+			xn[j]=xn[j]-l;
+		}
+		else if(xn[j]<0)
+		{
+			xn[j]=xn[j]+l;
+		}
+		if(yn[j]>l)
+		{
+			yn[j]=yn[j]-l;
+		}
+		else if(yn[j]<0)
+		{
+			yn[j]=yn[j]+l;
+		}
+		if(zn[j]>l)
+		{
+			zn[j]=zn[j]-l;
+		}
+		else if(zn[j]<0)
+		{
+			zn[j]=zn[j]+l;
+		}	
+		double p=exp(-(ENGLJ(xn,yn,zn,j)-ENGLJ(xi,yi,zi,j)));//Metropolis Algorithm
+		if(p>1)
+		{
+			p=1;
+		}
+		if(p>(double) rand() / (RAND_MAX))
+		{
+			xi[j]=xn[j];
+			yi[j]=yn[j];
+			zi[j]=zn[j];
+		}
+		// Stabilized from nth MCS
+		if(i>n)//after Stabilization 
+		{
+			for(int k=0;k<512;k++)//calculating Avg Energy after stabilization
+			{
+				EAvg[k]=EAvg[k]+ENGLJ(xi,yi,zi,j);
+			}
+		}
+	}
+	for(int i=0;i<512;i++)
+	{
+		EAvg[i]=EAvg[i]/n;
+		cout<<EAvg[i]<<endl;
+	}
+	
+}
+		
+	
