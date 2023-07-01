@@ -1,7 +1,6 @@
-# Monte-Carlo-Codes
-Monte Carlo Simulation Code 
-Based on Metropolis Algorithm
-1. Simple Harmonic Oscillator
-2. Box of atoms interacting with Lennard Jones Potential
+# Winter 2018: SNBNCBS Kolkata
 
-Molecular Dynamics Code using LJ Potential
+Box of atoms interacting with Lennard Jones Potential
+
+1. Monte Carlo Simulation Code
+2. Molecular Dynamics Code
